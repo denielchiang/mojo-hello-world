@@ -1,0 +1,22 @@
+name: Perl CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: '5.40'
+      - name: Cache Carton
+        uses: actions/cache@v4
+        with:
+          path: local
+          key: ${{ runner.os }}-carton-${{ hashFiles('cpanfile.snapshot') }}
+      - name: Install Carton
+        run: cpanm --quiet --notest Carton
+      - name: Install deps
+        run: carton install --deployment
+      - name: Run tests
+        run: carton exec prove -lr t
